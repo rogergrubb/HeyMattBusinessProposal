@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wilson Electric — The Pitch</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; background: #061a30; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #fff;
+}
+
+.deck { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 4vh 6vw;
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s ease;
+  overflow-y: auto;
+}
+.slide.active { opacity: 1; pointer-events: auto; }
+
+.nav {
+  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 10px; align-items: center; z-index: 100;
+  background: rgba(0,0,0,.4); padding: 8px 14px; border-radius: 50px;
+  backdrop-filter: blur(10px);
+}
+.nav button {
+  background: rgba(255,255,255,.15); color: #fff; border: 0;
+  width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+  font-size: 18px; font-weight: bold;
+}
+.nav button:hover { background: rgba(255,255,255,.3); }
+.nav .counter { color: #fff; font-size: 13px; min-width: 60px; text-align: center; }
+.nav .full { font-size: 12px; padding: 0 12px; height: 32px; border-radius: 50px; }
+
+.eyebrow {
+  font-size: clamp(11px, 1.4vw, 14px);
+  letter-spacing: 3px; text-transform: uppercase;
+  color: #ffb800; font-weight: 700; margin-bottom: 14px;
+}
+h1 {
+  font-size: clamp(36px, 6.5vw, 78px);
+  line-height: 1.05; font-weight: 900;
+  letter-spacing: -.02em; margin-bottom: 20px;
+}
+h1 .accent { color: #ffb800; }
+h1 .strike { color: #d32f2f; text-decoration: line-through; }
+h2 {
+  font-size: clamp(28px, 4.5vw, 52px);
+  line-height: 1.1; font-weight: 800;
+  letter-spacing: -.015em; margin-bottom: 20px;
+}
+h2 .accent { color: #ffb800; }
+h3 {
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 700; margin-bottom: 8px;
+}
+p, li { font-size: clamp(15px, 1.6vw, 20px); line-height: 1.5; }
+.lead { font-size: clamp(18px, 2.1vw, 26px); opacity: .9; max-width: 900px; margin-bottom: 24px; }
+
+.slide.title-slide { background: radial-gradient(circle at 30% 30%, #1a4480 0%, #061a30 70%); }
+.slide.dark { background: #061a30; }
+.slide.cherry { background: linear-gradient(135deg, #5a0010 0%, #990011 100%); }
+.slide.yellow { background: #ffb800; color: #061a30; }
+.slide.yellow .eyebrow { color: #061a30; }
+.slide.yellow h1, .slide.yellow h2 { color: #061a30; }
+.slide.yellow h1 .accent { color: #fff; }
+.slide.navy-light { background: linear-gradient(135deg, #0a2540 0%, #1a4480 100%); }
+.slide.cream { background: #f7f4ed; color: #061a30; }
+.slide.cream .eyebrow { color: #d32f2f; }
+.slide.cream h1, .slide.cream h2, .slide.cream h3 { color: #061a30; }
+
+.big-num {
+  font-size: clamp(80px, 14vw, 180px);
+  font-weight: 900; line-height: .9;
+  letter-spacing: -.04em; color: #ffb800;
+  margin: 10px 0;
+}
+.big-num.urgent { color: #fff; text-shadow: 0 4px 30px rgba(0,0,0,.4); }
+.big-num.dark { color: #061a30; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 20px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 16px; }
+.card {
+  background: rgba(255,255,255,.08);
+  border-radius: 14px; padding: 22px;
+  border-left: 4px solid #ffb800;
+}
+.card.dark { background: rgba(255,255,255,.95); color: #061a30; }
+.card .rank {
+  font-size: clamp(34px, 5vw, 56px);
+  font-weight: 900; color: #ffb800; line-height: 1;
+  margin-bottom: 8px;
+}
+.card .price {
+  margin-top: 12px; font-size: clamp(13px, 1.4vw, 16px);
+  color: #0a8a3c; font-weight: 700;
+}
+.card.dark .price { color: #086d2e; }
+
+.search-box {
+  background: #fff; color: #1a1a1a; padding: 28px;
+  border-radius: 12px; margin-bottom: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.3);
+}
+.search-box .url { color: #5f6368; font-size: 13px; margin-bottom: 4px; }
+.search-box .title { color: #1a0dab; font-size: 20px; margin-bottom: 4px; }
+.search-box .desc { color: #4d5156; font-size: 14px; }
+.search-result-missing {
+  background: rgba(211,47,47,.2); border: 2px dashed #d32f2f;
+  padding: 24px; border-radius: 12px; text-align: center;
+}
+
+.row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.row:last-child { border: none; }
+.row .icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: bold; flex-shrink: 0;
+}
+.row .icon.x { background: #d32f2f; color: #fff; }
+.row .icon.check { background: #0a8a3c; color: #fff; }
+.row .icon.warn { background: #ffb800; color: #061a30; }
+.row .label { flex: 1; font-weight: 600; }
+.row .val { opacity: .8; font-size: 14px; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,.15); font-size: clamp(13px, 1.4vw, 17px); }
+th { background: rgba(255,255,255,.08); font-weight: 700; color: #ffb800; }
+.cream table th { color: #d32f2f; background: rgba(0,0,0,.06); }
+.cream th, .cream td { border-color: rgba(0,0,0,.1); }
+
+.close-cta {
+  font-size: clamp(40px, 7vw, 88px);
+  font-weight: 900; letter-spacing: -.02em;
+  margin: 20px 0;
+}
+.close-cta .accent { color: #ffb800; }
+.signature { margin-top: 30px; font-size: 18px; opacity: .8; }
+
+.tag {
+  display: inline-block; background: rgba(255,255,255,.15);
+  padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 600;
+  margin-right: 8px; margin-bottom: 8px;
+}
+
+.today-input {
+  font-size: clamp(60px, 11vw, 140px); font-weight: 900; line-height: 1;
+  background: transparent; border: 0; border-bottom: 3px dashed #ffb800;
+  color: #ccc; width: 260px; max-width: 60vw; text-align: center;
+  font-family: inherit; outline: none; padding: 0 4px;
+  -moz-appearance: textfield;
+}
+.today-input::-webkit-outer-spin-button,
+.today-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.honesty {
+  background: rgba(255,184,0,.15); border-left: 3px solid #ffb800;
+  padding: 12px 14px; border-radius: 6px;
+  font-size: clamp(13px, 1.4vw, 15px);
+}
+.honesty strong { color: #ffb800; }
+.sliders { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
+.slider-row label {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: clamp(13px, 1.5vw, 16px); font-weight: 600; margin-bottom: 6px;
+  flex-wrap: wrap; gap: 6px;
+}
+.slider-row label .val { color: #ffb800; font-weight: 800; font-size: clamp(15px, 1.8vw, 19px); }
+.slider-row label .sub { color: #888; font-weight: 400; font-size: 13px; }
+.slider-row input[type=range] {
+  width: 100%; -webkit-appearance: none; appearance: none;
+  height: 8px; background: rgba(255,255,255,.15); border-radius: 4px; outline: none;
+}
+.slider-row input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #ffb800; cursor: pointer;
+  border: 3px solid #061a30;
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+.slider-row input[type=range]::-moz-range-thumb {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #ffb800; cursor: pointer;
+  border: 3px solid #061a30;
+}
+.line-item {
+  display: flex; justify-content: space-between; padding: 4px 0;
+  font-size: clamp(12px, 1.3vw, 14px); color: #bbb;
+  border-bottom: 1px dotted rgba(255,255,255,.1);
+}
+.line-item:last-child { border: none; }
+.line-item .v { color: #ffb800; font-weight: 700; }
+
+@media print {
+  html, body, .deck, .slide { height: auto !important; overflow: visible !important; }
+  .slide {
+    position: relative; opacity: 1 !important; pointer-events: auto;
+    page-break-after: always; min-height: 100vh; padding: 40px 50px;
+  }
+  .nav { display: none; }
+}
+
+@media (max-width: 700px) {
+  .grid-2, .grid-3, .grid-5 { grid-template-columns: 1fr; }
+  .slide { padding: 5vh 5vw; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+<section class="slide title-slide active">
+  <div class="eyebrow">For Matt Wilson · From Roger Grubb · May 2026</div>
+  <h1>Matt, you're leaving<br><span class="accent">$500K a year</span><br>on the table.</h1>
+  <p class="lead">And I can help you grab it. Here's exactly how — in 12 slides.</p>
+</section>
+
+<section class="slide dark">
+  <div class="eyebrow">Where you stand today</div>
+  <h2>You're the <span class="accent">4.9-star</span> electrician in El Sobrante.</h2>
+  <div class="grid-5" style="margin-top:30px;">
+    <div class="card" style="text-align:center;"><div class="big-num" style="font-size:48px;">4.9★</div><p>Yelp · 86 reviews</p></div>
+    <div class="card" style="text-align:center;"><div class="big-num" style="font-size:48px;">4.9★</div><p>Angi</p></div>
+    <div class="card" style="text-align:center;"><div class="big-num" style="font-size:48px;">A+</div><p>BBB</p></div>
+    <div class="card" style="text-align:center;"><div class="big-num" style="font-size:48px;">107</div><p>BuildZoom (top 6% of CA)</p></div>
+    <div class="card" style="text-align:center;"><div class="big-num" style="font-size:48px;">17</div><p>Years in business</p></div>
+  </div>
+  <p class="lead" style="margin-top:30px;">Every signal says you're a top-tier tradesman. Customers love you. Your reputation is bulletproof.</p>
+  <p style="font-size:clamp(18px,2.1vw,26px); font-weight:700; color:#ffb800; margin-top:14px;">So why aren't you booked 6 months out at premium rates?</p>
+</section>
+
+<section class="slide cherry">
+  <div class="eyebrow" style="color:#fff;">The hard truth</div>
+  <h1 style="color:#fff;">You're <span style="color:#ffb800;">invisible</span> on Google.</h1>
+  <div class="grid-2" style="margin-top:20px;">
+    <div>
+      <h3 style="color:#ffb800;">Search: "electrician El Sobrante"</h3>
+      <div class="search-box">
+        <div class="url">fiveorfreeelectrical.com</div>
+        <div class="title">Five or Free Electrical — Hercules</div>
+        <div class="desc">EV chargers, panel upgrades. Serving Pinole, Rodeo...</div>
+      </div>
+      <div class="search-box">
+        <div class="url">sotelectricpros.com</div>
+        <div class="title">SOT Electric — Pinole</div>
+        <div class="desc">Licensed contractor. EV chargers. Panel upgrades...</div>
+      </div>
+      <div class="search-result-missing">
+        <strong style="color:#fff; font-size:18px;">⚠ Wilson Electric — not on page 1.</strong><br>
+        <span style="font-size:14px; opacity:.85;">No website. No Google Business optimization.</span>
+      </div>
+    </div>
+    <div>
+      <h3 style="color:#ffb800;">What this costs you</h3>
+      <div class="row"><div class="icon x">×</div><div class="label">No own website</div><div class="val">0 organic leads</div></div>
+      <div class="row"><div class="icon x">×</div><div class="label">No Google Business pack</div><div class="val">Invisible to "near me" searches</div></div>
+      <div class="row"><div class="icon x">×</div><div class="label">No social presence</div><div class="val">Zero brand-building</div></div>
+      <div class="row"><div class="icon x">×</div><div class="label">No email list</div><div class="val">Repeat business leaks</div></div>
+      <div class="row"><div class="icon warn">!</div><div class="label">Closed weekends</div><div class="val">Money walks away</div></div>
+      <p style="margin-top:20px; font-size:18px; font-weight:700;">Competitors with worse reviews are winning. <span style="color:#ffb800;">Because they show up.</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="slide yellow">
+  <div class="eyebrow">Meanwhile, January 1, 2026...</div>
+  <h1>A California-sized<br>gold rush <span class="accent">just started.</span></h1>
+  <p class="lead" style="opacity:1;">Title 24 (the new state energy code) just made these things <strong>legally mandatory</strong>:</p>
+  <div class="grid-3">
+    <div class="card dark"><h3>Every new multifamily building</h3><p>Must be <strong>100% EV-ready</strong>. Assigned parking = 1 Level 2 receptacle per unit. Shared parking = every spot.</p></div>
+    <div class="card dark"><h3>Every new home</h3><p>Heat pump required for space + water heating. No more gas. Means new circuits + panels.</p></div>
+    <div class="card dark"><h3>Every retrofit / remodel</h3><p>"Electric ready" — every gas appliance replacement must be wired so future electric swap is easy.</p></div>
+  </div>
+  <p style="margin-top:24px; font-size:clamp(18px,2vw,24px); font-weight:700;">Buildings literally cannot get certificates of occupancy without an electrician. <span style="color:#fff; background:#061a30; padding:4px 10px; border-radius:6px;">That electrician should be you.</span></p>
+</section>
+
+<section class="slide dark">
+  <div class="eyebrow">The plan</div>
+  <h2>The <span class="accent">5 niches</span> we're going to own.</h2>
+  <p class="lead">Ranked by revenue potential. We don't chase all five at once. We win one, then stack.</p>
+  <div class="grid-5">
+    <div class="card"><div class="rank">1</div><h3>Multifamily EV Charging</h3><p>Code mandate. MCE pays up to $5K/port.</p><div class="price">$120K–$180K / 30-unit job</div></div>
+    <div class="card"><div class="rank">2</div><h3>Heat Pump Panel Work</h3><p>Become the electrical sub for HVAC pros.</p><div class="price">200+ jobs/yr pipeline</div></div>
+    <div class="card"><div class="rank">3</div><h3>Battery Backup</h3><p>Tesla / Enphase / FranklinWH installs.</p><div class="price">$14K–$22K per install</div></div>
+    <div class="card"><div class="rank">4</div><h3>HOA Right-to-Charge</h3><p>One condo board = 80 warm leads.</p><div class="price">$60K–$120K per HOA</div></div>
+    <div class="card"><div class="rank">5</div><h3>ADU Electrical</h3><p>Sub-panels, trenches, EV-ready outlets.</p><div class="price">$3.5K–$8K per ADU</div></div>
+  </div>
+</section>
+
+<section class="slide navy-light">
+  <div class="eyebrow">Niche #1, deep dive</div>
+  <h2>One 30-unit retrofit pays you<br><span class="accent">six figures.</span></h2>
+  <div class="grid-2" style="margin-top:30px;">
+    <div>
+      <table>
+        <tr><th>Line item</th><th>$</th></tr>
+        <tr><td>30 Level-2 ports installed</td><td>~$120,000</td></tr>
+        <tr><td>Electrical service upgrade</td><td>~$25,000</td></tr>
+        <tr><td>Permit + design coordination</td><td>~$15,000</td></tr>
+        <tr><td><strong>Project total</strong></td><td><strong>~$160,000</strong></td></tr>
+        <tr><td>MCE rebate (covers equipment)</td><td>-$120,000 (to owner)</td></tr>
+        <tr style="background:rgba(255,184,0,.1);"><td><strong>Net cost to property owner</strong></td><td><strong>~$40K</strong></td></tr>
+      </table>
+    </div>
+    <div>
+      <h3 style="color:#ffb800;">Why owners will say yes</h3>
+      <p style="margin-bottom:14px;">→ It's a <strong>code requirement</strong> for new builds. Existing owners want to stay competitive on rent.</p>
+      <p style="margin-bottom:14px;">→ <strong>$5K/port rebate</strong> from MCE covers most equipment cost.</p>
+      <p style="margin-bottom:14px;">→ <strong>30% federal tax credit</strong> on top — expires June 30, 2026.</p>
+      <p style="margin-bottom:14px;">→ Higher rents. Better property value. Tax write-offs.</p>
+      <p style="margin-top:20px; font-weight:700; font-size:20px;">You become "the guy who handles the rebate paperwork." That's the moat. No one else does it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide cream">
+  <div class="eyebrow">The hidden weapon</div>
+  <h1>Your customers don't know about<br><span style="color:#d32f2f;">$50,000 in free money.</span></h1>
+  <p class="lead">When you bring it to them, you don't compete on price — you compete on <em>nobody else even knows this exists.</em></p>
+  <div class="grid-2" style="margin-top:20px;">
+    <div>
+      <table>
+        <tr><th>Program</th><th>What you get</th></tr>
+        <tr><td>Federal EV charger credit</td><td>30% of equipment, up to $100K commercial</td></tr>
+        <tr><td>PG&E Residential EV</td><td>Up to 100% of charger equipment</td></tr>
+        <tr><td>Clean Cars for All</td><td>Up to $2,000 / home charger</td></tr>
+        <tr><td>MCE Multifamily</td><td>Up to $5,000 / port</td></tr>
+        <tr><td>Tech Clean California</td><td>Heat pump rebates stack</td></tr>
+        <tr><td>HEEHRA (low-income)</td><td>Up to $8,000 / household</td></tr>
+        <tr><td>PG&E EV Fleet</td><td>$236M program · ends Dec 31, 2026</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3 style="color:#d32f2f;">The deadline trap (in our favor)</h3>
+      <p>Federal credit dies <strong>June 30, 2026</strong>. PG&E Fleet enrollment closes <strong>Dec 31, 2026</strong>.</p>
+      <p style="margin-top:14px;"><strong>Urgency sells.</strong> Every conversation starts with: "I can save you $X, but only if we file by [date]."</p>
+      <p style="margin-top:14px;">That's not a sales pitch. That's a public service. And it converts at 3–5× normal rates.</p>
+      <p style="margin-top:20px; padding:14px; background:#ffb800; color:#061a30; border-radius:8px; font-weight:700;">⚡ Whoever shows up first wins the next 8 months.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide dark">
+  <div class="eyebrow">Competitive scan — West Contra Costa</div>
+  <h2>What we're up against. <span class="accent">(Spoiler: not much.)</span></h2>
+  <table style="margin-top:20px;">
+    <tr><th>Competitor</th><th>Reviews</th><th>Website</th><th>Multifamily?</th><th>Rebate help?</th></tr>
+    <tr><td>Five or Free Electrical</td><td>~4.7★ (mid)</td><td>✅</td><td>❌</td><td>❌</td></tr>
+    <tr><td>SOT Electric (Pinole)</td><td>~4.5★</td><td>✅</td><td>❌</td><td>❌</td></tr>
+    <tr><td>Generic Bay Area chains</td><td>3-4★</td><td>✅</td><td>Sometimes</td><td>Sometimes</td></tr>
+    <tr style="background:rgba(255,184,0,.1);"><td><strong>Wilson Electric (you)</strong></td><td><strong>4.9★ (best)</strong></td><td>❌ → ✅ today</td><td>✅ if we move</td><td>✅ if we move</td></tr>
+  </table>
+  <p class="lead" style="margin-top:24px; font-weight:700;">You already have the <span style="color:#ffb800;">best reputation</span>. We just need to put it where people can find it — and weaponize the rebate angle no one else is doing.</p>
+</section>
+
+<section class="slide navy-light">
+  <div class="eyebrow">What I've already built for you</div>
+  <h2>I didn't come empty-handed.</h2>
+  <div class="grid-3">
+    <div class="card"><h3>✅ Your website</h3><p>Full one-page site, mobile-friendly, SEO-loaded for "EV charger installer Richmond", "electrician El Sobrante", and 8 more keywords. Click-to-call. Lead form. Schema markup for Google.</p><div class="price">Ready to go live this week</div></div>
+    <div class="card"><h3>✅ Your strategy</h3><p>13-page playbook: 5 niches with revenue math, target list of 20+ property managers, 3 outreach scripts (multifamily, HVAC subs, HOA boards), 90-day sprint plan.</p><div class="price">In your inbox after this meeting</div></div>
+    <div class="card"><h3>✅ Your rebate playbook</h3><p>Step-by-step on the MCE-approved vendor application + PG&E Fleet contractor program. Both deadlines in 2026 — we apply this month.</p><div class="price">Applications drafted</div></div>
+  </div>
+</section>
+
+<section class="slide cream">
+  <div class="eyebrow">90 days</div>
+  <h2>What happens if we shake hands today.</h2>
+  <div class="grid-3" style="margin-top:30px;">
+    <div class="card dark" style="border-color:#d32f2f;"><div class="rank" style="color:#d32f2f;">Wk 1–2</div><h3>Foundation</h3><p>Website live · Google Business claimed · BBB accredited · MCE + PG&E applications submitted.</p></div>
+    <div class="card dark" style="border-color:#d32f2f;"><div class="rank" style="color:#d32f2f;">Wk 3–4</div><h3>Demand capture</h3><p>Local Services Ads live · Lead magnet PDF for multifamily owners · email list started.</p></div>
+    <div class="card dark" style="border-color:#d32f2f;"><div class="rank" style="color:#d32f2f;">Wk 5–8</div><h3>Pipeline</h3><p>20 property managers contacted · 10 HVAC sub-relationships pitched · 5 HOA board meetings booked.</p></div>
+    <div class="card dark" style="border-color:#d32f2f;"><div class="rank" style="color:#d32f2f;">Wk 9–12</div><h3>Scale</h3><p>Tesla Certified installer · Add weekend hours · Hire an apprentice · First multifamily contract signed.</p></div>
+    <div class="card dark" style="border-color:#0a8a3c; background:#e8f6ec;"><h3 style="color:#0a8a3c;">By Day 90</h3><p>Visible on Google · 3–5 qualified multifamily leads in pipeline · 1 closed deal worth $50K+ · MCE rebate-navigator reputation established.</p></div>
+  </div>
+</section>
+
+<section class="slide dark">
+  <div class="eyebrow">Year 1 revenue — drag the sliders, Matt</div>
+  <h2>Let's build the projection <span class="accent">together.</span></h2>
+  <div class="grid-2" style="margin-top:14px; gap:32px;">
+    <div>
+      <h3 style="color:#ccc; margin-bottom:4px;">TODAY (annual revenue)</h3>
+      <div style="display:flex; align-items:baseline; gap:4px; margin:6px 0 14px;">
+        <span style="font-size:clamp(48px,9vw,108px); font-weight:900; color:#ccc;">$</span>
+        <input type="number" id="today" class="today-input" value="280" min="0" max="2000">
+        <span style="font-size:clamp(36px,6vw,72px); font-weight:900; color:#ccc;">K</span>
+      </div>
+      <div class="honesty"><strong>Matt — I'm 100% guessing this number.</strong><br>Type your real annual revenue above. Every slider on the right updates live.</div>
+      <p style="margin-top:18px; font-size:14px; opacity:.7;">My guess of $280K is based on your hourly rates ($85/$95) and a typical mix for a 17-year solo electrician with 86 five-star reviews. Real number from you = real projection.</p>
+    </div>
+    <div>
+      <h3 style="color:#ffb800; margin-bottom:4px;">YEAR 1 WITH THIS PLAN</h3>
+      <div id="projected" class="big-num" style="margin:0; line-height:1;">$820K</div>
+      <div id="newRev" style="font-size:clamp(15px,1.7vw,20px); opacity:.9; margin-bottom:14px; font-weight:600;">+$540K of new revenue</div>
+      <div class="sliders">
+        <div class="slider-row"><label><span>🏢 Multifamily retrofits: <span class="val" id="mfVal">2</span> / yr</span><span class="sub">× $150K · <span id="mfRev" class="v" style="color:#ffb800;">$300K</span></span></label><input type="range" min="1" max="5" value="2" id="mf"></div>
+        <div class="slider-row"><label><span>🔥 Heat pump / panel jobs: <span class="val" id="hpVal">50</span> / yr</span><span class="sub">× $4K · <span id="hpRev" class="v" style="color:#ffb800;">$200K</span></span></label><input type="range" min="20" max="100" value="50" step="5" id="hp"></div>
+        <div class="slider-row"><label><span>⚡ EV charger + battery installs: <span class="val" id="evVal">20</span> / yr</span><span class="sub">avg $7.5K · <span id="evRev" class="v" style="color:#ffb800;">$150K</span></span></label><input type="range" min="10" max="40" value="20" id="ev"></div>
+        <div class="slider-row"><label><span>📈 Google Ads lift on existing book: <span class="val" id="gaVal">0</span>%</span><span class="sub"><span id="gaRev" class="v" style="color:#ffb800;">$280K</span></span></label><input type="range" min="0" max="50" value="0" id="ga"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide yellow">
+  <div class="eyebrow">My offer</div>
+  <h1>Here's the deal.</h1>
+  <div class="grid-2" style="margin-top:20px;">
+    <div>
+      <h3 style="font-size:22px; margin-bottom:14px;">What I do (for you, free)</h3>
+      <div class="row" style="border-color:rgba(0,0,0,.1);"><div class="icon check">✓</div><div class="label" style="color:#061a30;">Build + host your website</div></div>
+      <div class="row" style="border-color:rgba(0,0,0,.1);"><div class="icon check">✓</div><div class="label" style="color:#061a30;">Claim + optimize your Google Business Profile</div></div>
+      <div class="row" style="border-color:rgba(0,0,0,.1);"><div class="icon check">✓</div><div class="label" style="color:#061a30;">File MCE + PG&E Fleet contractor apps</div></div>
+      <div class="row" style="border-color:rgba(0,0,0,.1);"><div class="icon check">✓</div><div class="label" style="color:#061a30;">Build the rebate playbook + outreach templates</div></div>
+      <div class="row" style="border-color:rgba(0,0,0,.1);"><div class="icon check">✓</div><div class="label" style="color:#061a30;">Cold-email property managers + HVAC partners on your behalf</div></div>
+      <div class="row" style="border-color:rgba(0,0,0,.1);"><div class="icon check">✓</div><div class="label" style="color:#061a30;">Pay for the domain + ad spend (first 60 days, ~$500)</div></div>
+    </div>
+    <div>
+      <h3 style="font-size:22px; margin-bottom:14px;">What I need from you</h3>
+      <div class="row" style="border-color:rgba(0,0,0,.1);"><div class="icon check">✓</div><div class="label" style="color:#061a30;">Show up to the leads I send you</div></div>
+      <div class="row" style="border-color:rgba(0,0,0,.1);"><div class="icon check">✓</div><div class="label" style="color:#061a30;">A handshake referral fee on closed deals I source</div></div>
+      <div class="row" style="border-color:rgba(0,0,0,.1);"><div class="icon check">✓</div><div class="label" style="color:#061a30;">Let me use you as the alpha customer for a new service I'm building for tradesmen</div></div>
+      <div class="row" style="border-color:rgba(0,0,0,.1);"><div class="icon check">✓</div><div class="label" style="color:#061a30;">Carne asada tacos &amp; picanha when we close the first multifamily deal 🌮🥩</div></div>
+      <p style="margin-top:24px; padding:18px; background:#061a30; color:#ffb800; border-radius:10px; font-weight:700; font-size:18px;">No retainer. No upfront. We both win when leads close.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide title-slide">
+  <div class="eyebrow">The close</div>
+  <div class="close-cta">Matt — are you<br><span class="accent">in?</span></div>
+  <p class="lead" style="max-width:760px;">If yes, we shake on it today. I have the website live by Friday and the first property managers emailed by Monday.</p>
+  <div style="margin-top:30px; display:flex; gap:20px; flex-wrap:wrap;">
+    <span class="tag">⚡ 4.9★ for 17 years</span>
+    <span class="tag">🏗️ 2026 code mandate</span>
+    <span class="tag">💰 $5K/port rebates</span>
+    <span class="tag">📈 $500K+ Year 1 upside</span>
+  </div>
+  <div class="signature">Roger Grubb · Number One Son Software Development<br><a href="tel:+15104171203" style="color:#ffb800;">📞 Call Matt: (510) 417-1203</a></div>
+</section>
+
+</div>
+
+<div class="nav">
+  <button onclick="prev()">‹</button>
+  <span class="counter" id="counter">1 / 13</span>
+  <button onclick="next()">›</button>
+  <button class="full" onclick="toggleFull()">⛶ Full</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let i = 0;
+function show(n) {
+  slides[i].classList.remove('active');
+  i = (n + slides.length) % slides.length;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent = `${i + 1} / ${slides.length}`;
+  slides[i].scrollTop = 0;
+}
+function next() { show(i + 1); }
+function prev() { show(i - 1); }
+function toggleFull() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+  if (e.key === 'f' || e.key === 'F') toggleFull();
+  if (e.key === 'Escape' && document.fullscreenElement) document.exitFullscreen();
+});
+let touchX = null;
+document.addEventListener('touchstart', e => {
+  const t = e.target;
+  if (t.tagName === 'INPUT' || t.closest('.sliders') || t.closest('.honesty')) { touchX = null; return; }
+  touchX = e.touches[0].clientX;
+});
+document.addEventListener('touchend', e => {
+  if (touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); }
+  touchX = null;
+});
+
+function fmt(k) { return '$' + Math.round(k) + 'K'; }
+function updateProjection() {
+  const today = parseFloat(document.getElementById('today').value) || 0;
+  const mf = parseInt(document.getElementById('mf').value);
+  const hp = parseInt(document.getElementById('hp').value);
+  const ev = parseInt(document.getElementById('ev').value);
+  const ga = parseInt(document.getElementById('ga').value);
+  const mfRev = mf * 150;
+  const hpRev = hp * 4;
+  const evRev = ev * 7.5;
+  const existingRev = today * (1 + ga / 100);
+  const total = mfRev + hpRev + evRev + existingRev;
+  const newRev = total - today;
+  document.getElementById('mfVal').textContent = mf;
+  document.getElementById('hpVal').textContent = hp;
+  document.getElementById('evVal').textContent = ev;
+  document.getElementById('gaVal').textContent = ga;
+  document.getElementById('mfRev').textContent = fmt(mfRev);
+  document.getElementById('hpRev').textContent = fmt(hpRev);
+  document.getElementById('evRev').textContent = fmt(evRev);
+  document.getElementById('gaRev').textContent = fmt(existingRev);
+  document.getElementById('projected').textContent = fmt(total);
+  document.getElementById('newRev').textContent = '+' + fmt(newRev) + ' of new revenue';
+}
+['today','mf','hp','ev','ga'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', updateProjection);
+});
+if (document.getElementById('today')) updateProjection();
+</script>
+
+</body>
+</html>
