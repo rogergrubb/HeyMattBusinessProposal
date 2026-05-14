@@ -507,6 +507,8 @@ function toggleFull() {
   else document.exitFullscreen();
 }
 document.addEventListener('keydown', e => {
+  var __t = e.target;
+  if (__t && (__t.tagName === 'INPUT' || __t.tagName === 'TEXTAREA' || __t.isContentEditable)) return;
   if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
   if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
   if (e.key === 'f' || e.key === 'F') toggleFull();
