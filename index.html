@@ -596,7 +596,35 @@ if (document.getElementById('today')) updateProjection();
     }
   });
   var notifAsked = false;
+  var audioCtx = null;
+  function primeAudio() {
+    if (audioCtx) return;
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === "suspended") audioCtx.resume(); } catch(e) {}
+  }
+  function playPing() {
+    if (!audioCtx) return;
+    try {
+      var t = audioCtx.currentTime;
+      [[698.46, 0, 0.15], [880.0, 0.07, 0.2]].forEach(function(n) {
+        var osc = audioCtx.createOscillator(); var gain = audioCtx.createGain();
+        osc.type = "sine"; osc.frequency.value = n[0];
+        gain.gain.value = 0;
+        gain.gain.linearRampToValueAtTime(0.2, t + n[1] + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + n[1] + n[2]);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(t + n[1]); osc.stop(t + n[1] + n[2]);
+      });
+    } catch(e) {}
+  }
+  function alertNow() {
+    playPing();
+    if (navigator.vibrate) { try { navigator.vibrate([60, 40, 60]); } catch(e) {} }
+  }
+  window.__alertNow = alertNow;
+  document.addEventListener("click", primeAudio, { once: true });
+  document.addEventListener("touchstart", primeAudio, { once: true });
   document.getElementById("chat-input").addEventListener("focus", function() {
+    primeAudio();
     if (notifAsked) return;
     notifAsked = true;
     if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
@@ -611,6 +639,7 @@ if (document.getElementById('today')) updateProjection();
         var m = payload.payload;
         if (!m || m.from === me) return;
         addMsg(m);
+        alertNow();
         if ("Notification" in window && Notification.permission === "granted") {
           var n = new Notification((m.from === "matt" ? "Matt" : "Roger") + " says:", { body: m.text, tag: "heymatt-chat" });
           n.onclick = function() { window.focus(); n.close(); };
