@@ -210,8 +210,27 @@ th { background: rgba(255,255,255,.08); font-weight: 700; color: #ffb800; }
 }
 
 @media (max-width: 700px) {
-  .grid-2, .grid-3, .grid-5 { grid-template-columns: 1fr; }
-  .slide { padding: 5vh 5vw; }
+  .grid-2, .grid-3, .grid-5 { grid-template-columns: 1fr; gap: 10px; }
+  .slide { padding: 18px 16px; justify-content: flex-start; }
+  .slide h1 { font-size: 30px; line-height: 1.1; margin-bottom: 12px; }
+  .slide h2 { font-size: 24px; line-height: 1.15; margin-bottom: 12px; }
+  .slide h3 { font-size: 16px; }
+  .slide p, .slide li { font-size: 14px; }
+  .slide .lead { font-size: 15px; margin-bottom: 14px; }
+  .slide .eyebrow { font-size: 11px; margin-bottom: 10px; }
+  .slide .card { padding: 12px 14px; }
+  .slide .card .price { font-size: 12px; }
+  .slide .big-num { font-size: 48px; margin: 6px 0; }
+  .slide table th, .slide table td { padding: 8px 10px; font-size: 13px; }
+  .slide .row { padding: 8px 0; gap: 10px; }
+  .slide .row .icon { width: 28px; height: 28px; font-size: 14px; }
+  .slide .search-box { padding: 14px; }
+  .slide .search-box .title { font-size: 16px; }
+  .slide .search-result-missing { padding: 14px; }
+  .nav { bottom: 8px; padding: 4px 10px; }
+  .nav button { width: 30px; height: 30px; font-size: 16px; }
+  .nav .counter { font-size: 11px; min-width: 50px; }
+  .nav .full { font-size: 10px; height: 26px; padding: 0 8px; }
 }
 
 .chat-panel { background: rgba(255,255,255,.08); border: 1px solid rgba(255,184,0,.3); border-radius: 14px; padding: 14px; max-width: 600px; box-shadow: 0 4px 20px rgba(0,0,0,.25); margin-top: 14px; }
